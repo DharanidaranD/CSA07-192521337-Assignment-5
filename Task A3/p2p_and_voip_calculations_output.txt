@@ -1,0 +1,9 @@
+Client-server: N*F/us=6400 s, F/dmin=640 s -> 6400 s (106.7 min)
+Peer-to-peer : F/us=320 s, F/dmin=640 s, NF/(us+sum u)=1280 s -> 1280 s (21.3 min)
+P2P speed-up = 5.0x
+CDN,  1 edge(s): origin fill=320 s (off-peak, once), centre download=640 s, first-ever distribution=960 s (no pipelining)
+CDN,  5 edge(s): origin fill=1600 s (off-peak, once), centre download=640 s, first-ever distribution=2240 s (no pipelining)
+CDN, 20 edge(s): origin fill=6400 s (off-peak, once), centre download=640 s, first-ever distribution=7040 s (no pipelining)
+
+VoIP: 50 pps, payload 160 B, IP bandwidth 80.0 kbps/direction, with Ethernet 87.2 kbps
+Calls on 2 Mbps: 25 (IP only), 22 (with Ethernet), 16 at 70% utilisation
