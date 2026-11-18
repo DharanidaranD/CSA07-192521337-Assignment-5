@@ -1,0 +1,22 @@
+tcp   443   from 49.37.2.8  -> allow
+tcp   22    from 10.1.4.20  -> allow
+tcp   22    from 49.37.2.8  -> deny
+udp   53    from 10.1.4.20  -> allow
+tcp   80    from 49.37.2.8  -> deny
+icmp  None  from 49.37.2.8  -> deny
+
+--- After swapping rule 2 and rule 3 ---
+tcp   443   from 49.37.2.8  -> allow
+tcp   22    from 10.1.4.20  -> deny
+tcp   22    from 49.37.2.8  -> deny
+udp   53    from 10.1.4.20  -> allow
+tcp   80    from 49.37.2.8  -> deny
+icmp  None  from 49.37.2.8  -> deny
+
+--- Original rule set from A4.2 (allow ssh from ANY first) ---
+tcp   443   from 49.37.2.8  -> allow
+tcp   22    from 10.1.4.20  -> allow
+tcp   22    from 49.37.2.8  -> allow
+udp   53    from 10.1.4.20  -> allow
+tcp   80    from 49.37.2.8  -> deny
+icmp  None  from 49.37.2.8  -> deny
