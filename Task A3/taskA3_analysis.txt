@@ -1,0 +1,31 @@
+TASK A3 - PEER-TO-PEER, VoIP AND OVERLAYS BY THE NUMBERS
+(Outputs from p2p_and_voip_calculations.py)
+
+A3.1 4 GB PACKAGE, N = 20 centres (F = 4 GB = 32 Gbit; us = 100 Mbps; d = 50 Mbps; u = 20 Mbps)
+ Client-server: D = max{ N F/us , F/dmin } = max{ 20x32 Gbit/0.1 Gbps = 6,400 s ; 32/0.05 = 640 s } = 6,400 s (1 h 47 min)
+ Peer-to-peer : D = max{ F/us = 320 s ; F/dmin = 640 s ; N F/(us + sum ui) = 640 Gbit/0.5 Gbps = 1,280 s } = 1,280 s (21 min)
+ P2P is 5x faster because the server uploads each piece roughly once and the centres' own upload capacity
+ (20 x 20 = 400 Mbps) adds to the total; capacity grows with N. P2P loses when: few peers (small N), peers have
+ poor uplinks or leave early, the content must be controlled/secure/auditable (licensing), or ISP asymmetry makes uplink tiny.
+
+A3.2 VOICE CALL (G.711)
+ Packets per second = 1/0.020 = 50 pps. Payload = 64 kbps x 20 ms = 160 B. Packet = 160 + 40 = 200 B.
+ Bandwidth = 200 x 8 x 50 = 80 kbps per direction (25% overhead). With 18 B Ethernet header: 87.2 kbps.
+ Calls on 2 Mbps: 2000/80 = 25 (IP level); 22 with Ethernet; about 16 if kept under 70% utilisation. 
+ SIP (signalling) sets up, modifies and tears down calls: locates user, rings, negotiates codec/ports (SDP), 
+ registration, call transfer. RTP only carries the media with sequence numbers and timestamps.
+
+A3.3 OVERLAYS
+ CDN: servers placed at the edge cache content; DNS/anycast redirects each user to the nearest edge, so the
+ CDN is a logical network of caches over the internet. Solves: recorded lectures/downloads delay and load, 
+ and absorbs DoS traffic. VPN: encrypted tunnels (IPsec/TLS) between sites form a private logical network
+ over the internet. Solves: secure connection of the 20 regional centres/staff to internal servers; does not 
+ reduce delay.
+
+ALTERNATIVE - CDN with 1 Gbps edge server per region
+ Centre download from its edge: F/d = 640 s (limited by the centre's 50 Mbps downlink) - all centres in parallel.
+ Origin must fill each edge once: 320 s per edge copy at 100 Mbps (5 regions: 1,600 s; 20 edges: 6,400 s) but this is
+ done once, off-peak, and later versions can be pushed incrementally. Compared with P2P: 
+ steady-state time 640 s vs 1,280 s (2x faster); centres' own bandwidth is not used for others; reliable 
+ (SLA, redundancy, works with any N) but costs money per GB/month; P2P is free but depends on peer availability 
+ and gives no guarantee. Recommendation: CDN for public content, P2P/hybrid (or CDN) for the internal 20-centre push.
