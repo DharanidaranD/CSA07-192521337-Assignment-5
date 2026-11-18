@@ -1,0 +1,39 @@
+TASK B2 - SIMULATE UNDER VARYING CONDITIONS  (fill from YOUR simulation runs)
+
+Model to build in Packet Tracer (or NS-3):
+  Regional centre LAN (PCs + IP phones + switch) -- Router R1 -- WAN/internet link (serial/Ethernet) -- Router R2 -- Server farm
+  (web/e-mail/FTP/DNS servers + a VoIP call manager with IP phones). Use Simulation mode (PDU list: events, delay) and
+  Real-time mode with Add Complex PDU / traffic generator for loss and throughput.
+  Packet Tracer note: set serial clock rate for bandwidth (e.g. 2 Mbps / 10 Mbps / 100 Mbps); delay via ping time;
+  NS-3: PointToPointHelper SetDeviceAttribute("DataRate", ...), SetChannelAttribute("Delay", ...), FlowMonitor for stats.
+
+Experiment 1: vary bandwidth / delay / users
+| Run | Bandwidth | Link delay | Users | Throughput | Avg delay | Loss % |
+| 1 | 2 Mbps  | 10 ms | 5  | | | |
+| 2 | 10 Mbps | 10 ms | 5  | | | |
+| 3 | 10 Mbps | 50 ms | 5  | | | |
+| 4 | 10 Mbps | 10 ms | 20 | | | |
+Experiment 2: voice flow alone vs voice + background FTP download (FIFO)
+| Run | Voice delay | Voice jitter | Voice loss % | Download throughput |
+| voice only | | | | |
+| voice + download, FIFO | | | | |
+Experiment 3: voice + download with priority queue (PQ / LLQ)
+  Cisco config on R1 WAN interface:
+    class-map match-all VOICE
+     match ip dscp ef
+    policy-map WAN-QOS
+     class VOICE
+      priority 256
+     class class-default
+      fair-queue
+    interface Serial0/0/0
+     service-policy output WAN-QOS
+| voice + download, priority | | | | |
+Expected (theory) to compare with: with FIFO the 1,500 B download packets queue ahead of 200 B voice packets; on a 2 Mbps link a
+full queue of 20 x 1,500 B adds 20 x 6 ms = 120 ms delay (and drops) -> voice becomes "poor". With priority queuing the voice
+waits at most one packet in service (1,500 B = 6 ms at 2 Mbps), keeping delay low while download takes the leftover bandwidth.
+Explanation of each run: write 2-3 lines per run.
+
+ALTERNATIVE SIMULATOR: repeat Experiment 2 in NS-3 (or in Packet Tracer if you used NS-3). Compare: result detail
+(NS-3 FlowMonitor gives per-flow delay, jitter, loss, throughput numerically; Packet Tracer gives per-PDU timing and a GUI view),
+effort (Packet Tracer: hours, drag and drop; NS-3: C++/Python coding, steeper but scriptable/repeatable).
