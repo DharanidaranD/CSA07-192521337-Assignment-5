@@ -1,0 +1,15 @@
+# TASK B1.2 - iperf3 between two machines (paste real outputs)
+# Server machine:   iperf3 -s
+# TCP test:         iperf3 -c <server_ip> -t 30
+# UDP test:         iperf3 -c <server_ip> -u -b 50M -t 30     (read jitter and lost/total datagrams)
+# Reverse direction: add -R ;  parallel streams: -P 4 ;  window: -w 64K (used again in B3.2)
+| Link | Protocol | Direction | Throughput Mbps | Retransmits / Loss % | Jitter ms |
+|------|----------|-----------|-----|-----|-----|
+| Wired (Ethernet) | TCP | up   | | | |
+| Wired (Ethernet) | TCP | down | | | |
+| Wired (Ethernet) | UDP | up   | | | |
+| Wireless (Wi-Fi) | TCP | up   | | | |
+| Wireless (Wi-Fi) | TCP | down | | | |
+| Wireless (Wi-Fi) | UDP | up   | | | |
+# Expected pattern to check: wired ~ 940 Mbps on gigabit; Wi-Fi lower and much more variable (jitter higher).
+# Paste raw outputs below
