@@ -1,0 +1,36 @@
+TASK A4 - FIND THE HOLE IN THE FIREWALL
+
+A4.1 SSL/TLS
+ Certificate: a CA-signed binding of the server's public key to its domain name - proves you are talking to the
+ owner of learn.example (authentication), not that the site is "good".
+ Handshake agrees: TLS version, cipher suite, key exchange (ECDHE, forward secrecy) and produces shared session keys.
+ Attacker on cafe Wi-Fi CAN see: that a TLS session exists, the server IP, the SNI hostname (unless ECH), packet sizes,
+ timing and volume. CANNOT see: URLs/paths, headers, cookies, passwords, page content, nor modify it undetected.
+ (With a fake certificate the browser warns - the attack works only if the user ignores it.)
+
+A4.2 RULE SET
+ 1 allow tcp any -> 443        2 allow tcp any -> 22        3 deny tcp any -> 22
+ 4 allow tcp 10.1.0.0/16 -> 22 5 allow udp any -> 53        6 deny all
+ Rules that can never take effect: rule 3 (every SSH packet already matched rule 2 - shadowed) and rule 4
+ (rule 2 already allowed everything, so it is redundant). Hole: SSH on port 22 is open to the entire internet
+ (brute-force/exploit target); the intent (SSH only from 10.1.0.0/16) is never enforced.
+ Corrected order (specific before general):
+ 1 allow tcp 10.1.0.0/16 -> 22
+ 2 deny  tcp any -> 22
+ 3 allow tcp any -> 443
+ 4 allow udp any -> 53       (better: only if this host is really a DNS server)
+ 5 deny  all any -> any
+ Python test (firewall_filter.py): with the original order, tcp/22 from 49.37.2.8 is ALLOWED (the hole);
+ with the corrected order it is denied. Swapping rules 2 and 3 of the program's list makes tcp/22 from the
+ internal 10.1.4.20 DENIED too (the deny now shadows the allow) - so order matters in both directions.
+ Types: Stateless filter - judges each packet alone on header fields (IP, port, flags); fast, cheap, but cannot tell
+ a reply from an attack and needs wide rules. Stateful firewall - keeps a connection table, allows return traffic
+ of connections that were initiated legitimately, and blocks unsolicited packets. Application-layer/proxy firewall -
+ terminates the connection and inspects content (HTTP, FTP commands, SQL patterns); slowest, strongest, can block attacks inside allowed ports.
+
+ALTERNATIVE - cloud web-application firewall (WAF)
+ Stops what a packet filter cannot (port 443 is allowed, so the filter sees only "TCP 443"): (1) SQL injection,
+ (2) cross-site scripting / malicious requests, plus bot and HTTP-flood (layer 7) traffic.
+ Extra delay: usually 1-10 ms per request through the nearby WAF edge (an extra proxy hop + inspection),
+ small compared with the page load times of 100s of ms. Decision: yes - the company's site is public, handles
+ student logins, and has already suffered an attack; keep the (corrected) packet filter as well.
