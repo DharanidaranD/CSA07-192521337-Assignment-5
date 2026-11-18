@@ -1,0 +1,27 @@
+TASK A5 - HOW EASY IS IT TO TAKE THE SITE DOWN?
+
+A5.1 SIZE THE ATTACK
+ Queue 1,024 half-open entries, each held 60 s. To keep the queue full the attacker must send
+ rate = 1,024 / 60 s = 17.07 -> about 18 SYN packets per second (about 18 x 60 B x 8 = 8.6 kbps!).
+ A dial-up modem or one laptop is enough - the attack is cheap, the defence is mismatched.
+ SYN cookies: the server does not store state on SYN. It encodes the connection data (addresses, ports, timestamp,
+ MSS) into the initial sequence number of the SYN-ACK using a secret hash. Only a client that returns an ACK with
+ the correct value (spoofed sources cannot) gets a real connection entry. Queue never fills.
+ DNS amplification: attacker sends small DNS queries (~60 B) with the VICTIM's spoofed source address to open resolvers 
+ asking for large records (ANY/DNSSEC, ~3,000 B) -> 50x amplification. The victim receives huge floods of legitimate-looking 
+ DNS responses from thousands of different real resolvers, so no single source IP can be blocked, the link itself is 
+ saturated before the victim's firewall sees it (needs upstream filtering/scrubbing). Prevention at source: BCP38 ingress filtering.
+
+A5.2 PROTECTION PLAN
+ Attack type            | Defence chosen                      | Why
+ SYN flood (small)      | SYN cookies (+ rate limit per IP)   | Free, stops state exhaustion at the server
+ HTTP/request flood     | Rate limiting + WAF/CDN edge        | Limits per-client requests; CDN caches static content
+ Volumetric / DNS-amplification (Gbps) | Scrubbing service / CDN with anycast | Your 100 Mbps-1 Gbps link is filled before any local rule can act; needs upstream capacity
+ Overall: SYN cookies + rate limiting on the server, a CDN in front of the website (also speeds up recorded lectures),
+ scrubbing contract on standby for volumetric attacks.
+
+ALTERNATIVE - buy 4x server capacity
+ 4 servers = 4,096 half-open entries -> 4,096 / 60 = 68.3 -> about 69 SYN/s absorbed. This is only 4x of 17 pps (still
+ ~35 kbps of attack traffic), whereas a botnet sends millions of packets per second. Capacity grows linearly, attack
+ rate costs the attacker almost nothing, so this is NOT a realistic defence (and does nothing against bandwidth floods).
+ SYN cookies remove the limit at zero cost.
