@@ -1,0 +1,33 @@
+TASK B1 - MEASURE A REAL NETWORK
+
+B1.1 / B1.2 : fill in the tables in ping_traceroute_logs.txt and iperf3_logs.txt with YOUR measurements, then
+ write 5-6 lines: (a) is min RTT close to the theoretical figure and how large is the excess (route inefficiency,
+ queuing, processing)? (b) how does avg RTT and loss change between morning/evening? (c) wired vs wireless gap.
+
+B1.3 CAPTURE ANALYSIS
+ Capture a Teams/Meet/Zoom/Jitsi or SIP call in Wireshark (filter: rtp or udp). Use
+ Telephony -> RTP -> RTP Streams -> Analyze: it shows Lost %, Max/Mean Jitter, Max Delta.
+ Delay: use Statistics -> Flow/ping time, or capture at both ends with synchronised clocks (NTP/chrony).
+ Throughput: Statistics -> Conversations / IO Graph (bits/s). Export packet list as CSV and run capture_metrics.py
+ logic on your own trace (replace TRACE with tuples built from your CSV).
+
+ capture_metrics.py (Complete the Code) - verified output on the supplied trace:
+   packet loss 20.0 %, average delay 42.9 ms, jitter 6.6 ms, throughput 345.9 kbps, VoIP quality: poor
+   Check: delays 42,41,45,39,46,38,50,42 (sum 343, /8 = 42.9); consecutive differences 1,4,6,7,8,12,8 (sum 46, /7 = 6.6);
+   bits = 8 x 1200 x 8 = 76,800; time = 222 - 0 ms -> 345.9 kbps.
+ Remove the two lost packets: loss becomes 0 %, delay/jitter/throughput unchanged -> program prints "acceptable".
+ DECISION: this is NOT a real improvement. Removing them just hides the loss; delay (42.9 < 150) and jitter (6.6 < 30) were
+ already within limits, and the only failure was 20% loss, which is real (the call would have audible gaps).
+ Quality becomes acceptable only if the network actually stops losing packets (fix congestion/Wi-Fi/QoS).
+
+B1.4 COMPARE WITH TARGETS (A1.3): voice/video one-way delay < 150 ms, jitter < 30 ms, loss < 1 %. Make a
+ pass/fail table of your measured values against those targets.
+
+ALTERNATIVE - one-way delay vs RTT/2 on an asymmetric path
+ Example: download 100 Mbps, upload 2 Mbps, 1,500 B packets, 10 ms propagation each way.
+ Upstream transmission = 12,000 bit / 2 Mbps = 6 ms; downstream = 12,000 / 100 Mbps = 0.12 ms.
+ If the upload link also has a 40 ms queue (bufferbloat while uploading): 
+   True one-way delay up   = 10 + 6 + 40 = 56 ms ; down = 10 + 0.12 = 10.12 ms; RTT = 66.1 ms; RTT/2 = 33 ms.
+ RTT/2 under-states the upstream delay by 23 ms (41%) and over-states the downstream delay by 23 ms (3x).
+ For a voice call student->teacher, the real delay is 56 ms, not 33 ms. One-way delay measurement needs synchronised 
+ clocks (GPS/PTP; NTP error of a few ms is acceptable only if the delay is tens of ms).
