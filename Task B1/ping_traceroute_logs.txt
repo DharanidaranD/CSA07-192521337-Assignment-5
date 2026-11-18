@@ -1,0 +1,18 @@
+# TASK B1.1 - paste YOUR real command output here (do not leave sample values).
+# Targets: near (e.g. a server in your city/ISP), medium (e.g. Singapore/Mumbai), far (e.g. Europe/US)
+# Commands (Linux/macOS; on Windows use ping -n 100 and tracert):
+#   ping -c 100 <host> | tee -a ping_<host>_<morning|afternoon|evening>.txt
+#   traceroute <host>   | tee -a trace_<host>_<time>.txt
+# Take min/avg/max/mdev ("mdev" ~ jitter) and "% packet loss" from the summary line.
+# Compare min RTT with propagation: RTT_min_theory = 2 x distance / (2x10^8 m/s) = distance(km) / 100 ms.
+# (e.g. Chennai-Singapore ~2,900 km -> >= 29 ms; Chennai-Frankfurt ~7,400 km -> >= 74 ms; real is higher: cables are not straight.)
+
+| Server | Distance km (approx) | Theoretical min RTT ms | Time of day | min | avg | max | mdev | loss % | hops |
+|--------|----|----|----|----|----|----|----|----|----|
+| near   |    |    | morning   | | | | | | |
+| near   |    |    | afternoon | | | | | | |
+| near   |    |    | evening   | | | | | | |
+| medium |    |    | ...       | | | | | | |
+| far    |    |    | ...       | | | | | | |
+
+# Paste raw outputs below this line
