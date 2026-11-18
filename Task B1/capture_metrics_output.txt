@@ -1,0 +1,11 @@
+== Original trace ==
+packet loss 20.0 %
+average delay 42.9 ms, jitter 6.6 ms
+throughput 345.9 kbps
+VoIP quality: poor
+
+== Lost packets removed (loss hidden, NOT a real improvement) ==
+packet loss 0.0 %
+average delay 42.9 ms, jitter 6.6 ms
+throughput 345.9 kbps
+VoIP quality: acceptable
