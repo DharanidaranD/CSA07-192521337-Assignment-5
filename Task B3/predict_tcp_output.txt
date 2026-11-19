@@ -1,0 +1,20 @@
+Predicted TCP throughput, 100 Mbps link, MSS 1460 B (min of link, window/RTT, Mathis)
+ RTT ms  loss %  64KB window  1MB window
+      1       0    100.00 Mb   100.00 Mb
+      1       1    100.00 Mb   100.00 Mb
+      1       5     63.73 Mb    63.73 Mb
+      1      10     45.06 Mb    45.06 Mb
+     50       0     10.49 Mb   100.00 Mb
+     50       1      2.85 Mb     2.85 Mb
+     50       5      1.27 Mb     1.27 Mb
+     50      10      0.90 Mb     0.90 Mb
+    150       0      3.50 Mb    55.92 Mb
+    150       1      0.95 Mb     0.95 Mb
+    150       5      0.42 Mb     0.42 Mb
+    150      10      0.30 Mb     0.30 Mb
+    300       0      1.75 Mb    27.96 Mb
+    300       1      0.47 Mb     0.47 Mb
+    300       5      0.21 Mb     0.21 Mb
+    300      10      0.15 Mb     0.15 Mb
+
+Window needed to fill 100 Mbps: RTT 50 ms -> 610 KiB; RTT 150 ms -> 1831 KiB; RTT 300 ms -> 3662 KiB;
