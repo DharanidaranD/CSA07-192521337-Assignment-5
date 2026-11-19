@@ -1,0 +1,36 @@
+# ---- B3.1 / B3.2 : netem (Linux, run as root in your own lab; replace eth0) ----
+tc qdisc add dev eth0 root netem delay 50ms        # then 150ms, 300ms
+tc qdisc change dev eth0 root netem delay 50ms loss 1%     # then 5%, 10% ; combinations as needed
+tc qdisc del dev eth0 root                               # reset after each test
+# Measure: iperf3 -c <srv> -t 30 (TCP) ; iperf3 -c <srv> -u -b 100k -t 30 (voice-like UDP: read jitter/loss)
+# B3.2 window: iperf3 -c <srv> -w 64K -t 30  versus  iperf3 -c <srv> -w 4M -t 30  with 100 ms delay
+#   (server must also allow the window: sysctl -w net.core.rmem_max=16777216 net.core.wmem_max=16777216)
+
+# ---- B3.3 : corrected firewall rules (iptables, order matters) ----
+iptables -F INPUT
+iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT   # stateful improvement
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A INPUT -p tcp -s 10.1.0.0/16 --dport 22 -j ACCEPT
+iptables -A INPUT -p tcp --dport 22 -j DROP
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+iptables -A INPUT -p udp --dport 53 -j ACCEPT
+iptables -P INPUT DROP
+# Tests: nmap -p 22,443 <srv> from outside address (22 filtered, 443 open); ssh from 10.1.x.x works.
+# Cisco Packet Tracer ACL equivalent (inbound on server-facing interface):
+#   ip access-list extended WEB-IN
+#    permit tcp 10.1.0.0 0.0.255.255 any eq 22
+#    deny   tcp any any eq 22
+#    permit tcp any any eq 443
+#    permit udp any any eq 53
+#    deny   ip any any
+#   interface g0/0 ; ip access-group WEB-IN in
+
+# ---- B3.3 : rate limiting (ISOLATED LAB ONLY) ----
+sysctl -w net.ipv4.tcp_syncookies=1
+iptables -A INPUT -p tcp --dport 443 --syn -m hashlimit --hashlimit-above 20/sec --hashlimit-mode srcip --hashlimit-name syn -j DROP
+# Flood from a second lab VM (never a real site):  ab -n 20000 -c 200 http://<lab-server>/    (or hping3 -S --flood -p 80 <lab-server>)
+# Measure response time with:  curl -o /dev/null -s -w "%{time_total}\n" http://<lab-server>/   (average 20 runs, with and without the rule)
+
+# ---- Alternative: strict priority (EF) vs WFQ (Linux tc) ----
+# Strict priority:  tc qdisc add dev eth0 root handle 1: prio bands 3 ; tc filter add dev eth0 parent 1: protocol ip u32 match ip tos 0xb8 0xfc flowid 1:1
+# WFQ-like (HTB/fq_codel): tc qdisc add dev eth0 root fq_codel      (or Cisco: class-map/ policy with 'bandwidth percent 30' + 'fair-queue')
