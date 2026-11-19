@@ -1,0 +1,18 @@
+# Paste YOUR measured results. Theory column from predict_tcp.py (see predict_tcp_output.txt).
+B3.1 (64 KB window, 100 Mbps link; delay added on one side so RTT ~ delay)
+| Delay | Loss % | Theory TCP Mbps | Measured TCP Mbps | Voice jitter ms | Voice loss % | MOS/quality |
+| 0   | 0  | 100.0 | | | | |
+| 50  | 0  | 10.49 | | | | |
+| 150 | 0  | 3.50  | | | | |
+| 300 | 0  | 1.75  | | | | |
+| 0   | 1  | 100.0 (link-bound) | | | | |
+| 0   | 5  | 63.7  | | | | |
+| 0   | 10 | 45.1  | | | | |
+B3.2 window size at RTT 100 ms: theory W/RTT: 64 KB -> 5.2 Mbps; 1 MB -> 83.9 Mbps; BDP for 100 Mbps = 1.25 MB
+| Window | Theory Mbps | Measured Mbps |
+| 64 KB  | 5.24        |               |
+| 4 MB   | 100 (link)  |               |
+B3.3 firewall tests: | test | expected | observed |  (ssh from outside / ssh from 10.1.x.x / https / port 80)
+B3.3 flood: | condition | mean response time ms | max ms | failed requests |
+ | no flood | | | |  | flood, no rate limit | | | |  | flood + rate limit | | | |
+B3.4 and alternative: voice delay (ms) and download throughput (Mbps): | policy | voice delay | download Mbps | : strict priority | | | ; WFQ | | |
