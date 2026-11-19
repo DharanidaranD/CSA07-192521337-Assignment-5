@@ -1,6 +1,0 @@
-Link 100 Mbps: tx=0.480 ms prop=10.000 ms queue=1.500 ms proc=0.300 ms TOTAL=12.280 ms  (propagation share 81.4%)
-Link 1000 Mbps: tx=0.048 ms prop=10.000 ms queue=1.500 ms proc=0.300 ms TOTAL=11.848 ms  (propagation share 84.4%)
-
-BDP = 80 Mbit = 10.0 MB
-64 KB window -> max throughput = 6.55 Mbps = 0.66% of the link
-Window needed to fill the link = 9766 KiB
