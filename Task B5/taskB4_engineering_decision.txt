@@ -1,0 +1,29 @@
+TASK B4 - FINAL ENGINEERING DECISION
+(Predictions are derived from physics and standard models; replace/adjust them with YOUR B1-B3 measurements.)
+
+B4.1 PREDICT THE EFFECT
+ Another continent: propagation alone gives RTT_min ~ distance(km)/100 ms. India-Europe (~7,500 km): >= 75 ms RTT (typical 120-150);
+ India-US west coast (~14,000 km): >= 140 ms RTT (typical 220-260). One-way delay therefore ~60-130 ms from propagation + routing + queuing
+ - still under the 150 ms voice budget but with little room (adding jitter buffer 40-60 ms, codec/packetisation 20-30 ms) -> expect 150-200 ms
+ mouth-to-ear for US students. Jitter 10-40 ms, loss 0.5-2 % on long best-effort paths (use your B1 far-server result to calibrate).
+ TCP on those paths: 64 KB window gives 64KB x 8 / 0.25 s = 2.1 Mbps; with window scaling it fills the link.
+ Twice the users: if the evening utilisation is U, queuing delay grows steeply (M/M/1: waiting time ~ U/(1-U) service times). e.g. U = 40% -> 80%: 0.67 -> 4.0, i.e. queue delay x6
+ Use your B2 simulation to read the delay and loss at 2x users; if loss exceeds 1% or delay > 150 ms voice fails without QoS.
+B4.2 SECURITY CHECK
+ Show with your lab: (1) at 2x normal request rate (e.g. 2x the ab -c load of a normal evening) all requests succeed through the iptables
+ rate limit (limit 20 SYN/s per source IP >> a student's normal rate of < 5/s); (2) only the flood source is dropped.
+ Note: students behind a campus NAT share one IP - set limits per source IP high enough (or key on cookie/user at WAF).
+B4.3 RECOMMEND (quote your numbers)
+ 1. CDN for recorded lectures/downloads (propagation 10 ms domestic -> 70+ ms intercontinental, 640 s vs 6,400 s package distribution).
+ 2. QoS: EF priority queue with a cap for voice/live video on the WAN edge (removes the evening freeze: shows in B2).
+ 3. Fix TCP: window scaling/tuning (A1.2: 64 KB gives 0.66% of a 1 Gbps / 80 ms path).
+ 4. Security: corrected firewall (A4.2), SYN cookies + rate limits, WAF + scrubbing/CDN for DoS (A5: 18 SYN/s fills the queue; 4x servers = 69/s).
+ 5. Bandwidth upgrade: only after measured utilisation > 70% (upgrade 100 Mbps -> 1 Gbps saves just 0.43 ms of the 12.3 ms delay in A1.1).
+ 6. Regional servers for live classes (below).
+ALTERNATIVE - regional servers on other continents
+ Live class from India to Europe: RTT ~ 140 ms (one-way 70 ms) -> regional server in Europe: ~ 20-30 ms RTT for students, a 110-120 ms RTT saving
+ (use your measured far-server RTT). Interactive delay budget is met comfortably, jitter shrinks (shorter path, fewer queues).
+ Cost: servers/licences/ops in each region plus synchronisation: pushing 4 GB packages = 320 s per region at 100 Mbps (off-peak, incremental)
+ and consistency of grades/attendance databases (replication lag). Decision: justified for live classes with large student numbers
+ (>~ a few hundred concurrent) in a continent; for small numbers a CDN plus relayed media (SFU) is cheaper. Recommend a regional media server
+ first, keep the central database single-master.
